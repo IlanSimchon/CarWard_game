@@ -3,12 +3,14 @@
 using namespace ariel;
 Player::Player(string name){
         this->name = name;
+        this->taken = 0;
+        this->won_round = 0;
     }
 
 int Player::stacksize(){
-    return 0;
+    return this->stack.size();
 }
 
 int Player::cardesTaken(){
-    return 0;
+    return this->taken;
 }

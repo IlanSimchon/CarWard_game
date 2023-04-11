@@ -1,22 +1,165 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 #include "game.hpp"
+#include <iostream>
+#include <vector>
 
 using namespace ariel;
+using namespace std;
 
-Game::Game(Player p1, Player p2) :  p1(p1) , p2(p2) {}
+Game::Game(Player &p1, Player &p2) : p1(p1) , p2(p2){
+    this->p1 = p1;
+    this->p2 = p2;
+    this->draw_turn = 0;
 
-    void Game::playTurn() {}
+    vector<Card> arr;
+    for (int i = 1; i < 14; ++i) {
+        arr.push_back(Card(i , "hearts"));
+        arr.push_back(Card(i , "diamonds"));
+        arr.push_back(Card(i , "clubs"));
+        arr.push_back(Card(i , "spades"));
+    }
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(arr.begin(), arr.end(), g);
 
-    void Game::printLastTurn() {}
+    for (int i = 0; i < 26 ; ++i) {
+        this->p1.stack.push_back(arr.back());
+        arr.pop_back();
+        this->p2.stack.push_back(arr.back());
+        arr.pop_back();
+    }
 
-    void Game::playAll() {}
+//    int random1;
+//    int random2;
+//    for (int i = 0; i < 26 ; ++i) {
+//        random1 = rand() % static_cast<int>(arr.size());
+//        this->p1.stack.push_back(arr[static_cast<size_t>(random1)]);
+//        random2 = rand() % static_cast<int>(arr.size());
+//        this->p2.stack.push_back(arr[static_cast<size_t>(random2)]);
+//    }
+}
+// Alice played Queen of Hearts Bob played 5 of Spades. Alice wins.
 
-    void Game::printWiner() {}
 
-    void Game::printLog() {}
+void Game::playTurn() {
+    if (&this->p1 == &this->p2)
+        throw invalid_argument("A player cannot play against himself");
+    if (p1.stacksize() == 0 || p2.stacksize() == 0)
+        throw exception();
+    Card c1 = this->p1.stack.back();
+    this->p1.stack.pop_back();
+    Card c2 = this->p2.stack.back();
+    this->p2.stack.pop_back();
+    int cards = 2;
+    string turn = p1.name + " played " + c1.data() + " " + p2.name + " played " + c2.data() + ". ";
 
-    void Game::printStats() {}
+    while (c1 == c2) {
+        draw_turn++;
+        turn += "Draw. ";
+
+        if (p1.stacksize() == 1 || p2.stacksize() == 1) {
+            turn += "The stack is over";
+            this->p1.stack.pop_back();
+            this->p2.stack.pop_back();
+            cards += 2;
+
+            this->p1.taken += cards / 2;
+            this->p2.taken += cards / 2;
+
+            log.push_back(turn);
+            return;
+        } else if (p1.stacksize() == 0 || p2.stacksize() == 0) {
+            turn += "The stack is over";
+
+            this->p1.taken += cards / 2;
+            this->p2.taken += cards / 2;
+
+            log.push_back(turn);
+            return;
+        } else {
+            this->p1.stack.pop_back();
+            this->p2.stack.pop_back();
+
+            c1 = this->p1.stack.back();
+            this->p1.stack.pop_back();
+            c2 = this->p2.stack.back();
+            this->p2.stack.pop_back();
+
+            cards += 4;
+            turn += p1.name + " played " + c1.data() + " " + p2.name + " played " + c2.data() + ". ";
+        }
+    }
+        if (c1 < c2) {
+            this->p2.taken += cards;
+            this->p2.won_round++;
+            turn += p2.name + " wins.";
+        } else {
+            this->p1.taken += cards;
+            this->p1.won_round++;
+            turn += p1.name + " wins.";
+
+        }
+        log.push_back(turn);
+}
+
+    void Game::printLastTurn() {
+        if(this->log.size() == 0)
+            cout << "The Game not started yet" << endl;
+        else
+            cout << this->log.back() << endl;
+    }
+
+    void Game::playAll() {
+        if (p1.stacksize() > 0 && p2.stacksize() > 0) {
+            while (p1.stack.size() > 0 && p2.stack.size() > 0)
+                playTurn();
+        }
+    }
+
+    void Game::printWiner() {
+        if(p1.stacksize() > 0){
+            cout << "The game not over yet" << endl;
+        }
+        else {
+            if (this->p1.taken > this->p2.taken)
+                cout << p1.name << endl;
+            else if (this->p1.taken < this->p2.taken)
+                cout << p2.name << endl;
+            else {
+                cout << "Draw" << endl;
+            }
+        }
+    }
+
+    void Game::printLog() {
+        if(this->log.size() == 0)
+            cout << "The Game not started yet" << endl;
+        else {
+            for (string s: this->log) {
+                cout << s << endl;
+            }
+        }
+    }
+
+    void Game::printStats() {
+        if(p1.stacksize() > 0){
+            cout << "The game not over yet" << endl;
+        }
+        else {
+            double numOfTurns = static_cast<double>(this->log.size());
+            double winP1 = this->p1.won_round / numOfTurns * 100;
+            double winP2 = this->p2.won_round / numOfTurns * 100;
+
+            cout << "The game over after " << numOfTurns << " rounds" << endl;
+            cout << this->p1.name << " won " << winP1 << "% of the rounds and took " << this->p1.taken << " cards."
+                 << endl;
+            cout << this->p2.name << " won " << winP2 << "% of the rounds and took " << this->p2.taken << " cards."
+                 << endl;
+            cout << "there was a " << this->draw_turn << " draws" << endl;
+
+        }
+    }
 
 
 
