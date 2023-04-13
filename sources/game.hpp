@@ -15,7 +15,7 @@ namespace ariel{
         deque<string> log;
         int draw_turn;
 
-        Game(Player &player1, Player &p2);
+        Game(Player &player1, Player &player2);
 
         void playTurn();
 
