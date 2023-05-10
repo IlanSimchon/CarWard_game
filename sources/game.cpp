@@ -7,9 +7,7 @@
 using namespace ariel;
 using namespace std;
 
-Game::Game(Player &player1, Player &player2) : player1(player1) , player2(player2){
-    this->player1 = player1 ;
-    this->player2 = player2;
+Game::Game(Player &player1, Player &player2) : player1(player1) , player2(player2) {
     this->draw_turn = 0;
 
     vector<Card> arr;
@@ -30,17 +28,8 @@ Game::Game(Player &player1, Player &player2) : player1(player1) , player2(player
         arr.pop_back();
     }
 
-//    int random1;
-//    int random2;
-//    for (int i = 0; i < 26 ; ++i) {
-//        random1 = rand() % static_cast<int>(arr.size());
-//        this->p1.stack.push_back(arr[static_cast<size_t>(random1)]);
-//        random2 = rand() % static_cast<int>(arr.size());
-//        this->p2.stack.push_back(arr[static_cast<size_t>(random2)]);
-//    }
-}
-// Alice played Queen of Hearts Bob played 5 of Spades. Alice wins.
 
+}
 
 void Game::playTurn() {
     if (&this->player1 == &this->player2)
